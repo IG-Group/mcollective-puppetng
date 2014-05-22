@@ -1,0 +1,70 @@
+#!/usr/bin/ruby
+
+# Copyright IG Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# this file just handles command line arguments. it calls into
+# mcollective/util/puppetng/* classes which do the real work.
+ 
+$LOAD_PATH << "/usr/libexec/mcollective"
+# so we can use the JSON gem bundled with mcollective
+$LOAD_PATH << "/usr/lib/ruby/site_ruby/1.8/mcollective/vendor"
+
+require 'load_json'
+require 'logger'
+require 'optparse'
+require 'mcollective'
+require 'mcollective/unix_daemon'
+require 'mcollective/util/puppetng'
+
+include MCollective
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: puppetng_agent [options] <runid>"
+
+  opts.on("-d", "--daemonize", "Run in the background") do
+    options[:daemonize] = true
+  end
+
+  opts.on("-n", "--noop", "Run without making changes") do
+    options[:noop] = true
+  end
+end.parse!
+
+runid = ARGV[0]
+
+if runid.nil?
+  puts "Usage: puppetng_agent [options] <runid>"
+  exit 1
+end
+
+# create the manager from the puppetlabs puppet agent commons
+puppet_agent = Util::PuppetAgentMgr.manager(nil, "puppet")
+pr = Util::PuppetNG::ManagedPuppetRun.new(puppet_agent, runid)
+pr.noop = options[:noop] unless options[:noop].nil?
+
+if options[:daemonize] == true
+  # write a report before we daemonize. to make sure check_run requests always find the report
+  # and to detect if it doesn't daemonize properly.
+  pr.write_report
+  MCollective::UnixDaemon.daemonize do
+    pr.start
+  end
+else
+  pr.start
+end
+
+exit 0
