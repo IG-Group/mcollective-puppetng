@@ -44,7 +44,7 @@ pr.start
 
 report = registry.load_from_disk(testid)
 if report.nil?
-  warn "no report found."
+  raise "no report found."
 end
 
 puts report.inspect
