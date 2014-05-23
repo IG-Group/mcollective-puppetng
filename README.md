@@ -69,6 +69,10 @@ mostly just serves up this file.
  * /usr/local/sbin/puppetng_agent - a daemon which just passes arguments and
      backgrounds the managed_puppet_run.rb code.
 
+## Contact
+
+If you have any queries raise an issue on github or contact mcollective-puppetng.opensource at ig dot com
+
 ## Configuration
 
 Most timeouts and paths used are configurable.
