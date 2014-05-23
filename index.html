@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<meta name="viewport" content="width=device-width" />
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <title>mcollective-puppetng by IG-Group</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <div><h1><img src="images/iggroup.png" alt="IGGroup" height="45" width="148" /> mcollective-puppetng</h1></div>
+          <h2>coordinate puppet runs across many hosts</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/IG-Group/mcollective-puppetng/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/IG-Group/mcollective-puppetng/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/IG-Group/mcollective-puppetng" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+		
+		<p>mcollective-puppetng is an mcollective agent and application for running puppet on many systems.</p>
+		<p>It uses a small subset of code from the puppetlabs puppet agent, but is otherwise a substantial rewrite with an emphasis on reliability, detecting and handling failures, and reporting back the outcome of puppet runs. Many of the configurables the puppetlabs agent did are not available in this yet, but noop is.</p>
+		<p>Usually, it will report the errors that you would see on the puppet console.</p>
+		<p>With the original agent, our experience was that it was quite hard to know for certain the run was successful on all systems.</p>
+		<h2>Benefits and Features</h2>
+		<ul>
+		  <li>Extended checking of failures and timeouts during the puppet run.</li>
+		  <li>Will retry in some scenarios</li>
+		  <li>Reports back errors.</li>
+		  <li>Most timeouts and maximum retry attempts are configurable.</li>
+		  <li>Can manage the number of concurrent puppet runs.</li>
+		  <li>Prints a summary of failed hosts at the end of the run.</li>
+		  <li>Coloured output.</li>
+		  <li>Extendible using observers which can log progress of the run.</li>
+		  </ul>
+		  <h2>Dependencies</h2>
+		  <ul>
+		  <li>puppet</li>
+		  <li>mcollective</li>
+		  <li><a href="https://github.com/puppetlabs/puppetlabs-mcollective">mcollective-puppet-common</a></li>
+		  </ul>
+		  <h2>Componenents</h2>
+		  <p><strong>The application</strong> coordinates the puppet runs across many agents.</p>
+		  <ul>
+			<li>util/puppetng/colorize.rb - for colorizing the output</li>
+			<li>application/puppetng.rb</li>
+			<li>It requires the agent DDL at agent/puppetng/puppetng.ddl</li>
+		  </ul>
+		  <p>Example command:</p>
+		  <pre>
+		  mco puppetng run --concurrency 50
+		  </pre>
+		  <p><strong>The mcollective agent</strong> has two functions, run and check_run. When the run function is called, a unique ID 'runid' is passed (the same for all nodes in a run), which can then be provided to the check_run to get the status of it.</p>
+		  <p>The puppet run is monitored by a daemon process backgrounded by the agent. It monitors the puppet state directories, and when it detects change in progress it writes the state to a JSON file (under /tmp by default). check_run mostly just serves up this file.</p>
+		  <ul>
+			<li>/usr/libexec/mcollective/mcollective/agent/puppetng.rb - starts the daemon or reads reports (using util/ code).</li>
+			<li>/usr/libexec/mcollective/mcollective/agent/puppetng.ddl - DDL for the agent. See for available inputs and outputs.</li>
+			<li>/usr/libexec/mcollective/mcollective/util/puppetng/managed_puppet_run.rb - code for launching and monitoring a run.</li>
+			<li>/usr/libexec/mcollective/mcollective/util/puppetng/puppet_run_registry.rb - for reading JSON reports from disk.</li>
+			<li>/usr/local/sbin/puppetng_agent - a daemon which just passes arguments and backgrounds the managed_puppet_run.rb code.</li>
+		  </ul>
+          <h2>Screenshots</h2>
+		  <div>
+		  <a href="images/screenshot.png" target="null"><img src="images/screenshot.png"/></a>
+		  </div>
+          
+		  <h2>License</h2>
+		  <ul>
+		  <li><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>
+		  </ul>
+        <hr>
+		  
+		<h2>About IG Group</h2>
+		<p>
+IG Group is a world-leading provider of financial spread betting and CFDs. We are an established member of the FTSE 250 and have a market capitalisation of &pound;1.7 billion (as at June 2011).</p>
+<p>
+With headquarters in London and offices across Europe, as well as in the US, Japan, Singapore and Australia, our international network is growing rapidly. In the last five years we have opened 11 new offices.
+</p>
+<p>
+The Group has built a reputation for its advanced trading technology, competitive pricing and reliability. We have won a number of awards and independent research has revealed that over 60% of the UK's active spread bettors hold an account with IG Index.*
+</p>
+*Investment Trends UK Financial Spread Betting & Contracts for Difference Report (November 2011).
+<p/>
+        </section>
+        <section id="downloads" class="clearfix"  >
+         <a href="http://iggroup.com" id="about-us" class="button"><span>About IG</span></a>
+         <a href="http://www.iggroup.com/corporate/careers.html" id="about-us" class="button"><span>Careers</span></a>
+		 <a href="mailto:mcollective-puppetng.opensource@iggroup.com?Subject=Enquiry" id="mail-us" class="button"><span>Open Source</span></a>
+        </section>
+
+        <footer>
+          mcollective-puppetng is maintained by <a href="https://github.com/IG-Group">IG-Group</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
