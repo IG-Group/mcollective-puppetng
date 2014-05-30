@@ -326,6 +326,7 @@ Options:
 --concurrency <number> - Only run Puppet on <number> hosts in parallel (defaults to all)
 --runid <runid>        - Use this run ID instead of generating one automatically
 --noop                 - Do a noop run
+--tags                 - Tags to pass to the puppet agent
 
 For FILTERS help, see ????
   END_OF_USAGE
@@ -350,6 +351,11 @@ For FILTERS help, see ????
     :description => "noop run",
     :type        => :bool,
     :default     => false
+
+  option :tags,
+    :arguments => ["--tags TAGS"],
+    :description => "tags to pass to the puppet agent",
+    :type        => :String
 
   def post_option_parser(configuration)
     if ARGV.length >= 1
@@ -538,7 +544,9 @@ For FILTERS help, see ????
       txn_start(hosts.serial)
       if pending.length > 0
         mc.discover(:nodes => pending.map { |host| host.hostname })
-        runs = mc.run(:runid => runid, :noop => configuration[:noop])
+        opts = { :runid => runid, :noop => configuration[:noop] }
+        opts[:tags] = configuration[:tags] unless configuration[:tags].nil?
+        runs = mc.run(opts)
         runs.each do |s|
           senderid = s[:sender]
           hostobj = hosts[senderid]

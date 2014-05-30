@@ -23,7 +23,7 @@ MAX_REPORT_FAILURES = 10
 # This class does most of the work, kicking off a puppet run, watching it
 # and writing out reports of progress to a JSON file.
 class ManagedPuppetRun
-  attr_accessor :id, :errors, :report_errors, :state, :noop
+  attr_accessor :id, :errors, :report_errors, :state, :noop, :tags
 
   # mostly get configurables for later use
   def initialize(manager, id)
@@ -120,6 +120,7 @@ class ManagedPuppetRun
     puppet_path = @config.pluginconf.fetch("puppetng.puppet_path", "/usr/bin/puppet")
     cmd = "#{puppet_path} agent --test --detailed-exitcodes"
     cmd += " --noop" if @noop == true
+    cmd += " --tags #{@tags}" unless @tags.nil?
     system(cmd)
     ec = $?
     if puppet_detailed_exit_code_indicates_error?(ec)
@@ -137,6 +138,10 @@ class ManagedPuppetRun
     # SIGUSR1 is used, so no way to tell daemon we want noop.
     if @noop == true
       raise "cannot do noop in daemon mode"
+    end
+
+    unless @tags.nil?
+        raise "cannot pass tags in daemon mode"
     end
 
     # send SIGUSR1
@@ -263,6 +268,7 @@ class ManagedPuppetRun
     status = {}
 
     status[:noop] = @noop
+    status[:tags] = @tags unless @tags.nil?
     status[:state] = @state
     status[:report_errors] = @report_errors
     status[:errors] = @errors

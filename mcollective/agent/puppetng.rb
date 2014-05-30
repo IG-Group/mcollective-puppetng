@@ -48,9 +48,11 @@ module MCollective
       
       action "run" do
         runid = request[:runid]
-        agent_path = @config.pluginconf.fetch("puppetng.agent_path", "puppetng_agent")
+        agent_path = @config.pluginconf.fetch("puppetng.agent_path", "/usr/local/sbin/puppetng_agent")
         cmd = "#{agent_path} #{runid} --daemonize"
         cmd += " --noop" if request[:noop] == true
+        cmd += " --tags #{request[:tags]}" unless request[:tags].nil?
+        Log.debug("running puppetng daemon: #{cmd}")
         system(cmd)
       end
 

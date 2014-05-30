@@ -35,6 +35,10 @@ options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: puppetng_agent [options] <runid>"
 
+  opts.on("-t", "--tags TAGS", "Tags to pass to puppet agent") do |tags|
+    options[:tags] = tags
+  end
+
   opts.on("-d", "--daemonize", "Run in the background") do
     options[:daemonize] = true
   end
@@ -55,6 +59,7 @@ end
 puppet_agent = Util::PuppetAgentMgr.manager(nil, "puppet")
 pr = Util::PuppetNG::ManagedPuppetRun.new(puppet_agent, runid)
 pr.noop = options[:noop] unless options[:noop].nil?
+pr.tags = options[:tags] unless options[:tags].nil?
 
 if options[:daemonize] == true
   # write a report before we daemonize. to make sure check_run requests always find the report

@@ -76,6 +76,14 @@ action "check_run", :description => "Check the status of a run" do
            :display_as  => "noop run",
            :optional    => true
 
+    output :tags,
+           :description => "Tags to pass to the puppet agent",
+           :display_as  => "tags",
+           :type        => :string,
+           :validation  => '.*',
+           :maxlength   => 50,
+           :optional    => true
+
     summarize do
         aggregate summary(:state)
     end
