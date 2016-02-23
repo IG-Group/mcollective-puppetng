@@ -65,6 +65,7 @@ class HostCollection < Hash
       unless rsummary.nil?
         print " (#{rsummary})".green
       end
+      print " (#{host.time_summary})".green
       print " :: "
       puts "#{n_done}/#{length} (success: #{n_succeed}, failed: #{n_failed})".green
     end
@@ -163,6 +164,18 @@ class McoHost
       if resources["changed"] > 0
         buf += ", #{resources["changed"]} changed resources"
       end
+      return buf
+    end
+    return ""
+  end
+
+  # string summarizing the time taken for the run
+  def time_summary
+    real_time = (Time.now.to_i - @run_time).round(0)
+    buf = "real time: #{real_time}"
+    if !@latest.nil? and !@latest[:summary].nil? and !@latest[:summary]["time"].nil?
+      time = @latest[:summary]["time"]
+      buf += ", puppet time: #{time["total"].round(0)}"
       return buf
     end
     return ""
