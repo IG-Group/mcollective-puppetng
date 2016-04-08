@@ -368,7 +368,7 @@ For FILTERS help, see ????
   option :tags,
     :arguments => ["--tags TAGS"],
     :description => "tags to pass to the puppet agent",
-    :type        => :String
+    :type        => String
 
   def post_option_parser(configuration)
     if ARGV.length >= 1
