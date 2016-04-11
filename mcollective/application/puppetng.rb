@@ -74,7 +74,7 @@ class HostCollection < Hash
   end
 
   # We usually want to work with a sorted collection collection.
-  
+
   def values
     super.sort
   end
@@ -128,7 +128,7 @@ class HostCollection < Hash
       # not_found state, ot that the agent process is not running.
       elsif h.run_time > 0 and Time.now.to_i - h.run_time > 10
         if h.state == :not_found
-          h.mark_failed "run #{@runid} not found on agent." 
+          h.mark_failed "run #{@runid} not found on agent."
         # the agent lets us know if the PID which started a run is actually running.
         # if the run is incomplete and the monitor is not running, it probably failed.
         elsif !h.is_active?
@@ -171,11 +171,11 @@ class McoHost
 
   # string summarizing the time taken for the run
   def time_summary
-    real_time = (Time.now.to_i - @run_time).round(0)
+    real_time = (Time.now.to_i - @run_time)
     buf = "real time: #{real_time}"
     if !@latest.nil? and !@latest[:summary].nil? and !@latest[:summary]["time"].nil?
       time = @latest[:summary]["time"]
-      buf += ", puppet time: #{time["total"].round(0)}"
+      buf += ", puppet time: #{time["total"].round}"
       return buf
     end
     return ""
@@ -473,7 +473,7 @@ For FILTERS help, see ????
       state = state.green if state == "success"
       state = state.red if state == "failed"
       state = state.yellow if state == "running"
-      
+
       puts "#{senderid} .. #{state}"
     end
 
@@ -523,7 +523,7 @@ For FILTERS help, see ????
       host.time_before_unresponsive = time_before_unresponsive
       puts "  * #{host.hostname}"
     end
-    
+
     filters = mc.filter
     @observers.each { |o| o.discovery(hosts, filters) if o.respond_to?(:discovery) }
 
@@ -553,7 +553,7 @@ For FILTERS help, see ????
       end
 
       # we have runs to kick off
-      
+
       txn_start(hosts.serial)
       if pending.length > 0
         mc.discover(:nodes => pending.map { |host| host.hostname })
