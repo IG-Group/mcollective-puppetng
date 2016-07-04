@@ -36,7 +36,10 @@ class ManagedPuppetRun
     @apply_wait_max = @config.pluginconf.fetch("puppetng.apply_wait_max", 45).to_i
     @report_wait_max = @config.pluginconf.fetch("puppetng.report_wait_max", 120).to_i
     @expired_execution_retries = @config.pluginconf.fetch("puppetng.expired_execution_retries", 1).to_i
-    @report_dir = @config.pluginconf.fetch("puppetng.report_dir", "/tmp")
+    @report_dir = @config.pluginconf.fetch("puppetng.report_dir", "/tmp/puppetng")
+    require 'fileutils'
+    FileUtils::mkdir_p @report_dir
+
 
     @state = :unknown
     @manager = manager
@@ -297,9 +300,16 @@ class ManagedPuppetRun
     File.join(@report_dir, "#{@id}.json")
   end
 
+  # prevent leaking of json files after every puppet-ng run
+  def clean_reports
+    require 'fileutils'
+    FileUtils.rm Dir.glob("#{@report_dir}/*.json")
+  end
+
   # atomic_file is used to write to a tmp file and overwrite the report.
   # ensuring half written reports are not consumed.
   def write_report
+    clean_reports
     @manager.atomic_file(report_file) do |file|
       file.write(JSON.pretty_generate(get_status))
     end

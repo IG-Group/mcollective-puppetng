@@ -17,11 +17,12 @@
 
 # a simple test of the util code. starting a puppet run, reading the
 # report out and displaying it.
- 
+
 $LOAD_PATH << "/usr/libexec/mcollective"
 $LOAD_PATH << "/usr/lib/ruby/site_ruby/1.8/mcollective/vendor"
 
-require 'load_json'
+require 'rubygems'
+require 'json'
 require 'logger'
 require 'optparse'
 require 'mcollective'

@@ -1,0 +1,59 @@
+#!/bin/bash -eux
+# XXX Make sure you increment this version if you repackage multiple on the same day. XXX
+version_increment=1
+version_hash=$(git ls-remote https://github.com/tim-group/mcollective-puppetng.git | head -n1 | awk '{print $1}')
+version_date=$(date -u +%Y%m%d)
+version="1.0.1+git${version_date}.${version_hash:0:6}-${version_increment}"
+
+dir="tim-group-mcollective-puppetng-${version_hash:0:7}"
+archive="${version_hash}.tar.gz"
+
+trap "rm -rf ${archive} ${dir} build" EXIT
+
+export GEM_PATH=/var/lib/gems/1.8
+export PATH=${PATH}:/var/lib/gems/1.8/bin
+
+wget -nv https://github.com/tim-group/mcollective-puppetng/tarball/${version_hash}
+mv ${version_hash} ${archive}
+tar xzf ${archive}
+
+plugin_dir='usr/share/mcollective/plugins/mcollective'
+bin_dir='usr/local/sbin'
+
+mkdir -p build/agent/${bin_dir}
+mkdir -p build/agent/${plugin_dir}/agent
+mkdir -p build/client/${plugin_dir}/application
+mkdir -p build/common/${plugin_dir}/util
+
+mv "${dir}"/bin/* build/agent/"${bin_dir}"
+mv "${dir}"/mcollective/agent/* build/agent/"${plugin_dir}"/agent
+mv "${dir}"/mcollective/application/* build/client/"${plugin_dir}"/application
+mv "${dir}"/mcollective/util/* build/common/"${plugin_dir}"/util
+
+# Annoying people have hardcoded RedHat paths into the load path
+sed -i 's|/usr/libexec/mcollective|/usr/share/mcollective/plugins|g' build/agent/"${bin_dir}"/puppetng_agent
+sed -i 's|/usr/lib/ruby/site_ruby/1.8/mcollective/vendor|/usr/lib/ruby/1.8/mcollective/vendor|g' build/agent/"${bin_dir}"/puppetng_agent
+
+function package() {
+  fpm -t deb -s dir \
+    --architecture all \
+    -C build/${1} \
+    --name mcollective-puppetng-${1} \
+    --version "${version}" \
+    -m 'Infrastructure <infra@timgroup.com>' \
+    --url 'https://github.com/tim-group/mcollective-puppetng' \
+    --description 'mcollective-puppetng is an mcollective agent and application for running puppet on many systems.'
+}
+
+package agent
+package common
+
+fpm -t deb -s dir \
+  --architecture all \
+  -C build/client \
+  --name mcollective-puppetng-client \
+  --version "${version}" \
+  -m 'Infrastructure <infra@timgroup.com>' \
+  --url 'https://github.com/tim-group/mcollective-puppetng' \
+  --description 'mcollective-puppetng is an mcollective agent and application for running puppet on many systems.' \
+  --depends uuid-runtime

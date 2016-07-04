@@ -17,12 +17,13 @@
 
 # this file just handles command line arguments. it calls into
 # mcollective/util/puppetng/* classes which do the real work.
- 
+
 $LOAD_PATH << "/usr/libexec/mcollective"
 # so we can use the JSON gem bundled with mcollective
 $LOAD_PATH << "/usr/lib/ruby/site_ruby/1.8/mcollective/vendor"
 
-require 'load_json'
+require 'rubygems'
+require 'json'
 require 'logger'
 require 'optparse'
 require 'mcollective'
