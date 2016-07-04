@@ -31,7 +31,9 @@ module MCollective
 
       def startup_hook
         # get where to write report file to, to pass into PuppetRunRegistry
-        @report_dir = @config.pluginconf.fetch("puppetng.report_dir", "/tmp")
+        @report_dir = @config.pluginconf.fetch("puppetng.report_dir", "/tmp/puppetng")
+        require 'fileutils'
+        FileUtils::mkdir_p @report_dir
 
         # the PuppetAgentMgr class provides some functions for checking on puppet
         # which work on puppet 2 or puppet 3.
